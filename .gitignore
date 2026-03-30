@@ -1,0 +1,11 @@
+# Hidden folders (start with .)
+.cache/
+.xmake/
+
+# Build-related folders
+build/
+Binaries/Objects/
+Executable/
+
+# JSON files
+*.json
