@@ -9,3 +9,6 @@ Executable/
 
 # JSON files
 *.json
+
+.gitignore
+Assets/Images/
