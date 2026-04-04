@@ -38,11 +38,10 @@ namespace D3E
             return -1;
         }
 
-    	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     	glfwWindowHint(GLFW_RESIZABLE, (props.m_Resizable == true ? GLFW_TRUE : GLFW_FALSE));
-
     	if (m_Window = glfwCreateWindow(props.m_Width, props.m_Height, props.title, nullptr, nullptr); !m_Window)
     	{
     		std::cout << "m_Window == NULL in init()!\n";

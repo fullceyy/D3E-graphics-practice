@@ -1,14 +1,17 @@
 #include "Core/Window/Window.hpp"
 #include "Core/InputSystem/InputSystem.hpp"
+// #include "Graphics/Mesh/VBO/VertexBufferObject.hpp"
 #include "Graphics/Mesh/Vertex.hpp"
 #include "Core/Renderer/RenderCommand.hpp"
 #include "Core/Renderer/Renderer.hpp"
+#include "Core/Renderer/FinalVertexArray.hpp"
 #include "Graphics/Mesh/Mesh.hpp"
 #include "Graphics/Mesh/StaticMeshShapes/Cube.hpp"
 #include "Core/Camera/Camera.hpp"
 
 #include "ext/matrix_transform.hpp"
 #include "glm/ext.hpp"
+#include <iostream>
 
 int main(void)
 {
@@ -18,20 +21,21 @@ int main(void)
     D3E::Window window;
     D3E::Renderer renderer;
     D3E::InputSystem input_system(window.get_window());
+    std::cout << glGetString(GL_VERSION) << std::endl;
 
     input_system.initialize();
     glfwSetInputMode(window.get_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glEnable(GL_DEPTH_TEST);
 
-    std::shared_ptr<D3EGraphics::Mesh> mesh = std::make_shared<D3EGraphics::Mesh>(
-    D3EGraphics::VertexLayoutDesc({
-    {D3E_FLOAT3, false},
-    {D3E_FLOAT3, false},
-    {D3E_FLOAT3, false}}),
-    cube_vertex_values,
-    cube_indices_values);
+    // std::shared_ptr<D3EGraphics::Mesh> mesh = std::make_shared<D3EGraphics::Mesh>(
+    // D3EGraphics::VertexLayoutDesc({
+    // {D3E_FLOAT3, false},
+    // {D3E_FLOAT3, false},
+    // {D3E_FLOAT3, false}}),
+    // cube_vertex_values,
+    // cube_indices_values);
 
-    mesh->setup();
+    // mesh->setup();
 
     std::shared_ptr<D3EGraphics::Shader> shader =
         std::make_shared<D3EGraphics::Shader>("Assets/Shaders/Basic/Basic.vert", "Assets/Shaders/Basic/Basic.frag");
@@ -43,8 +47,20 @@ int main(void)
         100.0f
     );
 
+    D3E_CREATE_VB(vb, float, cube_vertex_values);
+    D3E_CREATE_EB(eb, cube_indices_values);
+    D3E::FinalVertexArray va(
+        {{D3E_FLOAT3, false},
+         {D3E_FLOAT3, false},
+         {D3E_FLOAT3, false}}
+    );
+    va.PushBuffer(std::move(vb));
+    va.PushBuffer(std::move(eb));
+    va.finalize();
+
     glm::mat4 model(1.f);
-    D3E::RenderVertexArray rc(mesh, shader);
+    // D3E::RenderVertexArray rc(mesh, shader);
+    D3E::RenderVertexArray rc(va, shader);
     model = glm::translate(model, glm::vec3(1.f, 0.f, 1.f));
 
     float rotationSpeed = glm::radians(45.0f); // 45 degrees per second
@@ -55,7 +71,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double currentTime = glfwGetTime();
-        float  deltaTime   = currentTime - previousTime;
+        float  deltaTime = currentTime - previousTime;
         previousTime = currentTime;
 
         glfwPollEvents();

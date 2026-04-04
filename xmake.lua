@@ -10,6 +10,7 @@ local GLAD_DIR  = "ThirdParty/glad"
 local IMGUI_DIR = "ThirdParty/imgui"
 local GLM_DIR   = "ThirdParty/glm"
 local STB_DIR   = "ThirdParty/stb"
+local KHR_DIR   = "ThirdParty/glad/KHR"
 
 target("3DE")
 set_kind("binary")
@@ -21,6 +22,7 @@ add_files("Sources/Core/InputSystem/*.cpp")
 add_files("Sources/Core/Camera/Camera.cpp")
 add_files("Sources/Core/Renderer/RenderCommand.cpp")
 add_files("Sources/Core/Renderer/Renderer.cpp")
+-- add_files("Sources/Core/Renderer/Renderer.cpp")
 add_files("Sources/Graphics/Mesh/VAO/*.cpp")
 add_files("Sources/Graphics/Mesh/EBO/*.cpp")
 add_files("Sources/Graphics/Mesh/VBO/*.cpp")
@@ -40,6 +42,7 @@ add_includedirs(IMGUI_DIR)
 add_includedirs(IMGUI_DIR .. "/backends")
 add_includedirs(GLM_DIR)
 add_includedirs(STB_DIR)
+add_includedirs(KHR_DIR)
 
 add_linkdirs(GLFW_DIR .. "/lib")
 add_links("glfw3")
