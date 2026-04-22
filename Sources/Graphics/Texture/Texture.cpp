@@ -3,7 +3,10 @@
 #include "stb/stb_image.h"
 #include <iostream>
 
-Texture::~Texture() {
+using namespace D3EGraphics;
+
+Texture::~Texture() 
+{
     glDeleteTextures(1, &texture_id);
 }
 

@@ -17,122 +17,122 @@ namespace D3E
 
     class RawBuffer
     {
-        protected:
-            GLuint mBufferId;
-            bufferType mType;
-            GLsizei mCount;
-        public:
-            RawBuffer()
-            : mType(NONE)
-            {
-                glCreateBuffers(1, &mBufferId);
-            }
+    protected:
+        GLuint mBufferId;
+        bufferType mType;
+        GLsizei mCount;
+    public:
+        RawBuffer()
+        : mType(NONE)
+        {
+            glCreateBuffers(1, &mBufferId);
+        }
 
-            virtual ~RawBuffer()
-            {
-                glDeleteBuffers(1, &mBufferId);
-            }
+        virtual ~RawBuffer()
+        {
+            glDeleteBuffers(1, &mBufferId);
+        }
 
-            bufferType& get_tag()
-            {
-                return mType;
-            }
+        bufferType& get_tag()
+        {
+            return mType;
+        }
 
-            GLsizei& get_count()
-            {
-                return mCount;
-            }
+        GLsizei& get_count()
+        {
+            return mCount;
+        }
 
-            virtual void setup(GLuint& vaoidx, size_t stride) = 0;
+        virtual void setup(GLuint& vaoidx, size_t stride) = 0;
     };
 
     template<typename T>
     class VertexBuffer : public RawBuffer
     {
-        private:
-            std::vector<T> mData;
-        public:
-            VertexBuffer(const std::vector<T>& data)
-            : mData(data)
-            {
-                mCount = mData.size();
-                glNamedBufferStorage(mBufferId, mData.size() * sizeof(T), mData.data(), GL_DYNAMIC_STORAGE_BIT);
-            }
+    private:
+        std::vector<T> mData;
+    public:
+        VertexBuffer(const std::vector<T>& data)
+        : mData(data)
+        {
+            mCount = mData.size();
+            glNamedBufferStorage(mBufferId, mData.size() * sizeof(T), mData.data(), GL_DYNAMIC_STORAGE_BIT);
+        }
 
-            void setup(GLuint& vaoidx, size_t stride) override
-            {
-                glVertexArrayVertexBuffer(vaoidx, 0, mBufferId, 0, stride);
-                mType = VERTEX;
-            }
+        void setup(GLuint& vaoidx, size_t stride) override
+        {
+            glVertexArrayVertexBuffer(vaoidx, 0, mBufferId, 0, stride);
+            mType = VERTEX;
+        }
     };
 
     class ElementBuffer : public RawBuffer
     {
-        private:
-            std::vector<GLuint> mData;
-        public:
-            ElementBuffer(const std::vector<GLuint>& data)
-            : mData(data)
-            {
-                mCount = mData.size();
-                glNamedBufferStorage(mBufferId, mData.size() * sizeof(GLuint), mData.data(), GL_DYNAMIC_STORAGE_BIT);
-            }
+    private:
+        std::vector<GLuint> mData;
+    public:
+        ElementBuffer(const std::vector<GLuint>& data)
+        : mData(data)
+        {
+            mCount = mData.size();
+            glNamedBufferStorage(mBufferId, mData.size() * sizeof(GLuint), mData.data(), GL_DYNAMIC_STORAGE_BIT);
+        }
 
-            void setup(GLuint& vaoidx, size_t stride) override
-            {
-                glVertexArrayElementBuffer(vaoidx, mBufferId);
-                mType = ELEMENT;
-            }
+        void setup(GLuint& vaoidx, size_t stride) override
+        {
+            glVertexArrayElementBuffer(vaoidx, mBufferId);
+            mType = ELEMENT;
+        }
     };
 
 
     class FinalVertexArray
     {
-        public:
-            friend class RenderVertexArray;
-            FinalVertexArray(D3EGraphics::VertexLayoutDesc layout)
-            : mLayout(layout)
+    public:
+        friend class RenderVertexArray;
+        FinalVertexArray(D3EGraphics::VertexLayoutDesc layout)
+        : mLayout(layout)
+        {
+            glCreateVertexArrays(1, &mId);
+        }
+
+        ~FinalVertexArray()
+        {
+            glDeleteVertexArrays(1, &mId);
+        }
+
+        void PushBuffer(std::unique_ptr<RawBuffer> buffer)
+        {
+            mBuffers.emplace_back(std::move(buffer));
+        }
+
+        void finalize()
+        {
+            for(auto& b : mBuffers)
             {
-                glCreateVertexArrays(1, &mId);
+                b->setup(mId, mLayout.get_stride());
+                if(b->get_tag() == ELEMENT) mIndexCount = b->get_count();
             }
 
-            ~FinalVertexArray()
+            uint32_t idx = 0;
+            for(auto& a : mLayout)
             {
-                glDeleteVertexArrays(1, &mId);
+                glEnableVertexArrayAttrib(mId, idx);
+                glVertexArrayAttribFormat(mId,
+                                            idx,
+                                            a.get_count(),
+                                            D3EGraphics::AttribTypeToOGLType(a.data_type),
+                                            a.normalized ? GL_TRUE : GL_FALSE,
+                                            a.offset);
+                glVertexArrayAttribBinding(mId, idx, 0);
+                idx++;
             }
+        }
 
-            void PushBuffer(std::unique_ptr<RawBuffer> buffer)
-            {
-                mBuffers.emplace_back(std::move(buffer));
-            }
-
-            void finalize()
-            {
-                for(auto& b : mBuffers)
-                {
-                    b->setup(mId, mLayout.get_stride());
-                    if(b->get_tag() == ELEMENT) mIndexCount = b->get_count();
-                }
-
-                uint32_t idx = 0;
-                for(auto& a : mLayout)
-                {
-                    glEnableVertexArrayAttrib(mId, idx);
-                    glVertexArrayAttribFormat(mId,
-                                              idx,
-                                              a.get_count(),
-                                              D3EGraphics::AttribTypeToOGLType(a.data_type),
-                                              a.normalized ? GL_TRUE : GL_FALSE,
-                                              a.offset);
-                    glVertexArrayAttribBinding(mId, idx, 0);
-                    idx++;
-                }
-            }
-
-        private:
-            GLuint mId;
-            D3EGraphics::VertexLayoutDesc mLayout;
-            std::vector<std::unique_ptr<RawBuffer>> mBuffers;
-            GLsizei mIndexCount;
+    private:
+        GLuint mId;
+        D3EGraphics::VertexLayoutDesc mLayout;
+        std::vector<std::unique_ptr<RawBuffer>> mBuffers;
+        GLsizei mIndexCount;
     };
 };

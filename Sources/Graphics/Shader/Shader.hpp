@@ -7,26 +7,26 @@ namespace D3EGraphics
 {
     class Shader
     {
-    	public:
-    		Shader(const char* vertex_src, const char* frag_src);
-    		~Shader() = default;
+	public:
+		Shader(const char* vertex_src, const char* frag_src);
+		~Shader() = default;
 
-    		char* read(const char* src);
-    		void compile_shader(GLuint id, const char* src);
-    		void link_shader();
+		char* read(const char* src);
+		void compile_shader(GLuint id, const char* src);
+		void link_shader();
 
-    		void bind() const;
-    		void unbind() const;
+		void bind() const;
+		void unbind() const;
 
-    		GLuint get_uniform_location(const std::string& name);
-    		void vec3_uniform(const std::string& name, glm::vec3 value);
-    		void mat4_uniform(const std::string& name, glm::mat4 value);
-    		// void float_uniform(const std::string& name, float value) const;
+		GLuint get_uniform_location(const std::string& name);
+		void vec3_uniform(const std::string& name, glm::vec3 value);
+		void mat4_uniform(const std::string& name, glm::mat4 value);
+		// void float_uniform(const std::string& name, float value) const;
 
-    		unsigned int get_program() const { return m_ProgramId; }
-    	private:
-    		unsigned int m_ProgramId;
-    		std::unordered_map<std::string, GLuint> m_CachedLocations;
+		unsigned int get_program() const { return m_ProgramId; }
+	private:
+		unsigned int m_ProgramId;
+		std::unordered_map<std::string, GLuint> m_CachedLocations;
     };
 }
 // class Shader

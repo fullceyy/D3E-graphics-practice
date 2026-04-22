@@ -2,8 +2,11 @@
 #include "glad/glad.h"
 #include <string>
 
-class Texture
+
+namespace D3EGraphics
 {
+    class Texture
+    {
     private:
         int width;
         int height;
@@ -22,4 +25,6 @@ class Texture
 
         unsigned int get_id() const;
         std::string getType() { return type; }
-};
+    };
+
+}

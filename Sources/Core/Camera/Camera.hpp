@@ -22,37 +22,35 @@ namespace D3E
         LOCK_ORBIT,
     };
 
-    // Camera should :
-    // Lock onto the object and provide orbit movement
-    // Zoom in or out
-    // If not locked in the orbit, move around X axis using mouse
-    // If not locked in the orbit, holding shift and using mouse to rotate around the center
-
     class Camera
     {
-        private:
-            float      m_Velocity    = 0.f;
-            float      m_Speed       = 2.f;
-            // free-look euler angles
-            float      m_Yaw         = -90.f;   // faces -Z by default
-            float      m_Pitch       = 0.f;
-            // camera basis
-            glm::vec3  m_Pos    {0.f, 0.f, 3.f};
-            glm::vec3  m_Up     {0.f, 1.f, 0.f};
-            glm::vec3  m_Right  {0.f};
-            glm::vec3  m_Target {0.f};
+    private:
+        float      mVelocity    = 0.f;
+        float      mSpeed       = 2.f;
+        // free-look euler angles
+        float      mYaw         = -90.f;   // faces -Z by default
+        float      mPitch       = 0.f;
+        // camera basis
+        glm::vec3  mPos    {0.f, 0.f, 3.f};
+        glm::vec3  mUp     {0.f, 1.f, 0.f};
+        glm::vec3  mRight  {0.f};
+        glm::vec3  mTarget {0.f};
 
-            void recalculate_right_up();
-            void recalculate_vectors();
-        public:
-            Camera();
-            Camera(glm::vec3 spawn);
-            ~Camera() = default;
+        float      xAspect = 0.f;
+        float      yAspect = 0.f;
 
-            glm::mat4 view_matrix();
-            void process_input(move_direction mDir, float deltaTime);
-            void process_mouse(float dx, float dy);
-            // void lock_orbit(glm::vec3 target);   // call this to snap-lock onto an object
-            // bool is_orbit_locked() const { return m_OrbitLocked; }
+        void recalculate_right_up();
+        void recalculate_vectors();
+    public:
+        Camera(float width, float height, glm::vec3 pos);
+        Camera();
+        ~Camera() = default;
+
+        glm::mat4 ViewMatrix();
+        glm::mat4 ProjectionMatrix();
+        
+        void SetAspectRatio(float x, float y);
+        void ProcessInput(move_direction mDir, float deltaTime);
+        void ProcessMouse(float dx, float dy);
     };
 }

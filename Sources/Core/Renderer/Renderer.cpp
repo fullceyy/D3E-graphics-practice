@@ -1,22 +1,22 @@
 #include "Renderer.hpp"
 
-namespace D3E
+using namespace D3E;
+
+void Renderer::Initialize()
 {
-    void Renderer::set_camera_matrices(glm::mat4 view, glm::mat4 projection)
-    {
-        m_View = view;
-        m_Projection = projection;
-    }
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glClearColor(.1f, .1f, .1f, 1.f);
+}
 
-    void Renderer::submit(std::shared_ptr<RenderCommand> cmd, glm::mat4 model)
-    {
-        m_Queue.push_back({cmd, model});
-    }
+void Renderer::Submit(std::unique_ptr<RenderCommand> command)
+{
+    mCommands.push_back(std::move(command));
+}
 
-    void Renderer::flush()
-    {
-        for (auto& [cmd, model] : m_Queue)
-            cmd->execute(model, m_Projection, m_View);
-        m_Queue.clear();
-    }
+void Renderer::Flush()
+{
+    for(auto& cmd : mCommands)
+        cmd->execute();
+    mCommands.clear();
 }

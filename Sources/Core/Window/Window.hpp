@@ -1,5 +1,4 @@
 #pragma once
-
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -17,19 +16,26 @@ namespace D3E
     class Window
     {
 	private:
-		[[nodiscard]] bool initialize(const CoreWindowPropeties& props);
-
-		void set_start_position(const GLFWvidmode*);
-		void set_viewport(const GLFWvidmode*) const;
+		void SetStartPosition(const GLFWvidmode*);
+		void SetViewport(const GLFWvidmode*) const;
 
 		CoreWindowPropeties m_CoreWindowProps;
-		GLFWwindow* m_Window;
+		GLFWwindow* mWindow = nullptr;
+		bool mOpen = false;
 	public:
-		Window();
+		Window() = default;
 		~Window();
+		
+		[[nodiscard]] bool Initialize(const CoreWindowPropeties& props);
 
-		GLFWwindow* get_window() const { return m_Window; }
-		int get_width() const { return m_CoreWindowProps.m_Width; }
-		int get_height() const { return m_CoreWindowProps.m_Height; }
+		inline GLFWwindow* GetWindow() const { return mWindow; }
+		inline int GetWidth()  const { return m_CoreWindowProps.m_Width; }
+		inline int GetHeight() const { return m_CoreWindowProps.m_Height; }
+		
+		inline bool Open() const { return mOpen; }
+		inline void Close() { mOpen = false; glfwWindowShouldClose(mWindow); }
+
+		void PollEvents() const;
+		void SwapBuffers() const;
     };
 };

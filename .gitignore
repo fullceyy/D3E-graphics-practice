@@ -1,6 +1,7 @@
 # Hidden folders (start with .)
 .cache/
 .xmake/
+.vscode/
 
 # Build-related folders
 build/
@@ -12,3 +13,5 @@ Executable/
 
 .gitignore
 Assets/Images/
+Sources/Source.cpp
+imgui.ini
